@@ -11,4 +11,6 @@ class Club < ApplicationRecord
       break token unless Club.where("LOWER(uid) = ?", token.downcase).exists?
     end
   end
+
+  def to_param; uid; end
 end

@@ -14,12 +14,21 @@ class ClubsController < ApplicationController
   end
 
   def edit
+    @club = Club.find_by!(uid: params[:id])
   end
 
   def update
+    @club = Club.find_by!(uid: params[:id])
+
+    if @club.update_attributes(club_params)
+      redirect_to club_path(@club), notice: "Successfully updated club!"
+    else
+      render :edit
+    end
   end
 
   def show
+    @club = Club.find_by!(uid: params[:id])
   end
 
   def index
