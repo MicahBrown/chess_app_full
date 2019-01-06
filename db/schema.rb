@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2018_10_26_032332) do
+ActiveRecord::Schema.define(version: 2019_01_06_221344) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -36,6 +36,15 @@ ActiveRecord::Schema.define(version: 2018_10_26_032332) do
     t.index ["uid"], name: "index_clubs_on_uid", unique: true
   end
 
+  create_table "games", force: :cascade do |t|
+    t.bigint "black_opponent_id"
+    t.bigint "white_opponent_id"
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["black_opponent_id"], name: "index_games_on_black_opponent_id"
+    t.index ["white_opponent_id"], name: "index_games_on_white_opponent_id"
+  end
+
   create_table "users", force: :cascade do |t|
     t.string "display_name", default: "Anonymous", null: false
     t.string "email", default: "", null: false
@@ -56,4 +65,6 @@ ActiveRecord::Schema.define(version: 2018_10_26_032332) do
   add_foreign_key "club_memberships", "clubs"
   add_foreign_key "club_memberships", "users"
   add_foreign_key "clubs", "users", column: "creator_id"
+  add_foreign_key "games", "users", column: "black_opponent_id"
+  add_foreign_key "games", "users", column: "white_opponent_id"
 end
