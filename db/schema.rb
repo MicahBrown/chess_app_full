@@ -39,6 +39,8 @@ ActiveRecord::Schema.define(version: 2019_01_06_221344) do
   create_table "games", force: :cascade do |t|
     t.bigint "black_opponent_id"
     t.bigint "white_opponent_id"
+    t.text "moves"
+    t.boolean "white_turn", default: true, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["black_opponent_id"], name: "index_games_on_black_opponent_id"
