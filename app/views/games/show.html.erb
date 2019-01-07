@@ -1,0 +1,86 @@
+<div class="board">
+  <div class="clearfix" style="margin-left: 20px;">
+    <% 8.times do |cell_num| %>
+      <div class="grid-label-x"><%= ("A".."H").to_a[cell_num] %></div>
+    <% end %>
+  </div>
+
+  <% 8.times do |row_num| %>
+    <div class="board-row clearfix">
+      <div class="grid-label-y"><%= 8 - row_num %></div>
+
+      <% 8.times do |cell_num| %>
+        <div class="board-cell <%= (row_num.even? ? cell_num.even? : cell_num.odd?) ? "wc" : "bc" %>">
+          <%=
+            if row_num == 0 || row_num == 7
+              case cell_num
+              when 0, 7 then piece("rook", row_num > 2)
+              when 1, 6 then piece("knight", row_num > 2)
+              when 2, 5 then piece("bishop", row_num > 2)
+              when 3 then piece("queen", row_num > 2)
+              when 4 then piece("king", row_num > 2)
+              end
+            elsif row_num == 1 || row_num == 6
+              piece("pawn", row_num > 2)
+            end
+          %>
+        </div>
+      <% end %>
+    </div>
+  <% end %>
+</div>
+
+
+<style type="text/css">
+  .board {
+    background: #eee;
+  }
+  .board-row {
+
+  }
+  .board-cell {
+    float: left;
+    width: 64px;
+    height: 64px;
+  }
+  .board-cell.wc {
+    background: white;
+  }
+  .board-cell.bc {
+    background: black;
+  }
+  .grid-label-y, .grid-label-x {
+    text-align: center;
+    float: left;
+    background: gray;
+    color: #fff;
+  }
+  .grid-label-x {
+    height: 20px;
+    width: 64px;
+    line-height: 20px;
+  }
+  .grid-label-y {
+    height: 64px;
+    width: 20px;
+    line-height: 64px;
+  }
+  .piece {
+    width: 60px;
+    height: 60px;
+    background: url('<%= asset_url("pieces.png") %>') no-repeat;
+    display: block;
+  }
+  .piece.black.king { background-position: 0 0; }
+  .piece.black.queen { background-position: -64px 0; }
+  .piece.black.rook { background-position: -128px 0; }
+  .piece.black.knight { background-position: -192px 0; }
+  .piece.black.bishop { background-position: -256px 0; }
+  .piece.black.pawn { background-position: -320px 0; }
+  .piece.white.king { background-position: 0 -64px; }
+  .piece.white.queen { background-position: -64px -64px; }
+  .piece.white.rook { background-position: -128px -64px; }
+  .piece.white.knight { background-position: -192px -64px; }
+  .piece.white.bishop { background-position: -256px -64px; }
+  .piece.white.pawn { background-position: -320px -64px; }
+</style>
