@@ -47,7 +47,7 @@
     background: white;
   }
   .board-cell.bc {
-    background: black;
+    background: #a0a0a0;
   }
   .grid-label-y, .grid-label-x {
     text-align: center;
@@ -66,12 +66,19 @@
     line-height: 64px;
   }
   .piece {
-    width: 60px;
-    height: 60px;
-    background: url('<%= asset_url("pieces.png") %>') no-repeat;
-    display: block;
+    /*width: 60px;*/
+    /*height: 60px;*/
+    /*background: url('<%#= asset_url("pieces.png") %>') no-repeat;*/
+    /*display: block;*/
   }
-  .piece.black.king { background-position: 0 0; }
+  .piece img {
+    width: 100%;
+    height: 100%;
+  }
+  .piece img:hover {
+    opacity: 0.8;
+  }
+  /*.piece.black.king { background-position: 0 0; }
   .piece.black.queen { background-position: -64px 0; }
   .piece.black.rook { background-position: -128px 0; }
   .piece.black.knight { background-position: -192px 0; }
@@ -82,5 +89,5 @@
   .piece.white.rook { background-position: -128px -64px; }
   .piece.white.knight { background-position: -192px -64px; }
   .piece.white.bishop { background-position: -256px -64px; }
-  .piece.white.pawn { background-position: -320px -64px; }
+  .piece.white.pawn { background-position: -320px -64px; }*/
 </style>
