@@ -30,6 +30,15 @@
   <% end %>
 </div>
 
+<script type="text/javascript">
+  $(document).ready(function(){
+    $(document).on("click", ".piece", function(event){
+      var piece = $(event.currentTarget)
+
+      piece.addClass("")
+    });
+  });
+</script>
 
 <style type="text/css">
   .board {
@@ -66,10 +75,9 @@
     line-height: 64px;
   }
   .piece {
-    /*width: 60px;*/
-    /*height: 60px;*/
-    /*background: url('<%#= asset_url("pieces.png") %>') no-repeat;*/
-    /*display: block;*/
+    display: block;
+    width: 64px;
+    height: 64px;
   }
   .piece img {
     width: 100%;
@@ -78,16 +86,4 @@
   .piece img:hover {
     opacity: 0.8;
   }
-  /*.piece.black.king { background-position: 0 0; }
-  .piece.black.queen { background-position: -64px 0; }
-  .piece.black.rook { background-position: -128px 0; }
-  .piece.black.knight { background-position: -192px 0; }
-  .piece.black.bishop { background-position: -256px 0; }
-  .piece.black.pawn { background-position: -320px 0; }
-  .piece.white.king { background-position: 0 -64px; }
-  .piece.white.queen { background-position: -64px -64px; }
-  .piece.white.rook { background-position: -128px -64px; }
-  .piece.white.knight { background-position: -192px -64px; }
-  .piece.white.bishop { background-position: -256px -64px; }
-  .piece.white.pawn { background-position: -320px -64px; }*/
 </style>
