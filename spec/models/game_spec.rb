@@ -1,5 +1,13 @@
 require 'rails_helper'
 
 RSpec.describe Game, type: :model do
-  pending "add some examples to (or delete) #{__FILE__}"
+  describe "creating game with pieces" do
+    it "" do
+      game = FactoryBot.build :game
+
+      expect {
+        game.create_with_pieces!
+      }.to change(game.pieces, :count).by 32
+    end
+  end
 end

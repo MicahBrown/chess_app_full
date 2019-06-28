@@ -1,3 +1,7 @@
+<%
+  pieces = @game.pieces
+  scale = ("A".."H").to_a
+%>
 <div class="board">
   <div class="clearfix" style="margin-left: 20px;">
     <% 8.times do |cell_num| %>
@@ -6,12 +10,17 @@
   </div>
 
   <% 8.times do |row_num| %>
+    <% row_num = 8 - row_num %>
     <div class="board-row clearfix">
-      <div class="grid-label-y"><%= 8 - row_num %></div>
+      <div class="grid-label-y"><%= row_num %></div>
 
       <% 8.times do |cell_num| %>
-        <div class="board-cell <%= (row_num.even? ? cell_num.even? : cell_num.odd?) ? "wc" : "bc" %>">
-          <%=
+        <%
+          cell_pos = "#{scale[cell_num]}#{row_num}"
+          cell_piece = pieces.detect { |p| p.position == cell_pos }
+        %>
+        <div class="board-cell <%= (row_num.even? ? cell_num.even? : cell_num.odd?) ? "wc" : "bc" %>" data-position="<%= cell_pos %>">
+          <%#=
             if row_num == 0 || row_num == 7
               case cell_num
               when 0, 7 then piece("rook", row_num > 2)
@@ -24,6 +33,9 @@
               piece("pawn", row_num > 2)
             end
           %>
+          <% if cell_piece.present? %>
+            <%= piece(cell_piece) %>
+          <% end %>
         </div>
       <% end %>
     </div>

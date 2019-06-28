@@ -1,6 +1,7 @@
 module ApplicationHelper
-  def piece(name, white=false)
-    color = white ? 'white' : 'black'
-    content_tag :span, image_tag("#{color}_#{name}.svg"), class: "piece", data: {color: color, type: name}
+  def piece(p)
+    type = p.type_name
+    color = p.color
+    content_tag :span, image_tag("#{color}_#{type}.svg"), class: "piece", data: {color: color, type: type}
   end
 end

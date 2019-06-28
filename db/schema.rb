@@ -49,9 +49,9 @@ ActiveRecord::Schema.define(version: 2019_06_24_020011) do
 
   create_table "pieces", force: :cascade do |t|
     t.bigint "game_id", null: false
+    t.string "type", null: false
     t.integer "color", null: false
-    t.integer "piece_type", null: false
-    t.string "piece_position", null: false
+    t.string "position", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["game_id"], name: "index_pieces_on_game_id"

@@ -5,7 +5,7 @@ class GamesController < ApplicationController
   def create
     game = Game.new
 
-    if game.save
+    if game.create_with_pieces!
       redirect_to game_path(game), notice: "Successfully started new game!"
     else
       redirect_to games_path, alert: "Unable to start new game."
@@ -13,5 +13,6 @@ class GamesController < ApplicationController
   end
 
   def show
+    @game = Game.find(params[:id])
   end
 end
