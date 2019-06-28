@@ -1,6 +1,8 @@
 class Piece < ApplicationRecord
   enum color: %w[white black]
 
+  serialize :moves, Array
+
   TYPES = %w[King Queen Bishop Knight Rook Pawn].freeze
 
   belongs_to :game
