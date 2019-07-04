@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2019_06_24_020011) do
+ActiveRecord::Schema.define(version: 2019_07_02_043048) do
 
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
@@ -36,11 +36,19 @@ ActiveRecord::Schema.define(version: 2019_06_24_020011) do
     t.index ["uid"], name: "index_clubs_on_uid", unique: true
   end
 
+  create_table "game_moves", force: :cascade do |t|
+    t.bigint "game_id", null: false
+    t.integer "team", null: false
+    t.datetime "created_at", null: false
+    t.datetime "updated_at", null: false
+    t.index ["game_id"], name: "index_game_moves_on_game_id"
+  end
+
   create_table "games", force: :cascade do |t|
     t.bigint "black_opponent_id"
     t.bigint "white_opponent_id"
     t.text "moves"
-    t.boolean "white_turn", default: true, null: false
+    t.integer "team_turn", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["black_opponent_id"], name: "index_games_on_black_opponent_id"
@@ -50,7 +58,7 @@ ActiveRecord::Schema.define(version: 2019_06_24_020011) do
   create_table "pieces", force: :cascade do |t|
     t.bigint "game_id", null: false
     t.string "type", null: false
-    t.integer "color", null: false
+    t.integer "team", null: false
     t.string "position", null: false
     t.text "moves"
     t.datetime "created_at", null: false
@@ -78,6 +86,7 @@ ActiveRecord::Schema.define(version: 2019_06_24_020011) do
   add_foreign_key "club_memberships", "clubs"
   add_foreign_key "club_memberships", "users"
   add_foreign_key "clubs", "users", column: "creator_id"
+  add_foreign_key "game_moves", "games"
   add_foreign_key "games", "users", column: "black_opponent_id"
   add_foreign_key "games", "users", column: "white_opponent_id"
   add_foreign_key "pieces", "games"
