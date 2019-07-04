@@ -1,6 +1,14 @@
 class Game < ApplicationRecord
   has_many :pieces
 
+  def move(position)
+    raise position.inspect
+  end
+
+  def current_turn_color
+    white_turn? ? :white : :black
+  end
+
   def create_with_pieces!
     build_all_pieces
     save!
@@ -9,9 +17,9 @@ class Game < ApplicationRecord
   def build_all_pieces
     Piece::TYPES.each do |type|
       klass = "Piece::#{type}".constantize
-      klass.colors.each do |color, val|
-        klass::START_POS[color].each do |pos|
-          self.pieces.build(type: klass, color: color, position: pos)
+      klass.teams.each do |team, val|
+        klass::START_POS[team].each do |pos|
+          self.pieces.build(type: klass, team: team, position: pos)
         end
       end
     end

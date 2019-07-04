@@ -1,5 +1,5 @@
 class Piece < ApplicationRecord
-  enum color: %w[white black]
+  enum team: %w[white black]
 
   serialize :moves, Array
 
@@ -7,7 +7,7 @@ class Piece < ApplicationRecord
 
   belongs_to :game
 
-  validates :color, presence: true
+  validates :team, presence: true
 
   def type_name
     self.type.split("::").last.downcase

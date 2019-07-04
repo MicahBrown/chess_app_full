@@ -1,0 +1,2 @@
+class GameMove < ApplicationRecord
+end

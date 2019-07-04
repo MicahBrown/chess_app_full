@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  resources :game_moves
   devise_for :users
 
   resources :clubs

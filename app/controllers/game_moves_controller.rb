@@ -1,0 +1,2 @@
+class GameMovesController < ApplicationController
+end

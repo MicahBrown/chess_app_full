@@ -2,7 +2,7 @@
   pieces = @game.pieces
   scale = ("A".."H").to_a
 %>
-<div class="board">
+<div class="board" data-current-turn="<%= @game.current_turn_color %>">
   <div class="clearfix" style="margin-left: 20px;">
     <% 8.times do |cell_num| %>
       <div class="grid-label-x"><%= ("A".."H").to_a[cell_num] %></div>
@@ -41,16 +41,6 @@
     </div>
   <% end %>
 </div>
-
-<script type="text/javascript">
-  $(document).ready(function(){
-    $(document).on("click", ".piece", function(event){
-      var piece = $(event.currentTarget)
-
-      piece.addClass("")
-    });
-  });
-</script>
 
 <style type="text/css">
   .board {
