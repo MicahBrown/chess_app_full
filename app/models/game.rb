@@ -1,4 +1,5 @@
 class Game < ApplicationRecord
+  enum turn: [:white_turn, :black_turn]
   has_many :pieces
 
   def move(position)

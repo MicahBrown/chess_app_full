@@ -38,17 +38,19 @@ ActiveRecord::Schema.define(version: 2019_07_02_043048) do
 
   create_table "game_moves", force: :cascade do |t|
     t.bigint "game_id", null: false
+    t.bigint "piece_id", null: false
     t.integer "team", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["game_id"], name: "index_game_moves_on_game_id"
+    t.index ["piece_id"], name: "index_game_moves_on_piece_id"
   end
 
   create_table "games", force: :cascade do |t|
     t.bigint "black_opponent_id"
     t.bigint "white_opponent_id"
     t.text "moves"
-    t.integer "team_turn", default: 0, null: false
+    t.integer "turn", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["black_opponent_id"], name: "index_games_on_black_opponent_id"
@@ -87,6 +89,7 @@ ActiveRecord::Schema.define(version: 2019_07_02_043048) do
   add_foreign_key "club_memberships", "users"
   add_foreign_key "clubs", "users", column: "creator_id"
   add_foreign_key "game_moves", "games"
+  add_foreign_key "game_moves", "pieces"
   add_foreign_key "games", "users", column: "black_opponent_id"
   add_foreign_key "games", "users", column: "white_opponent_id"
   add_foreign_key "pieces", "games"
