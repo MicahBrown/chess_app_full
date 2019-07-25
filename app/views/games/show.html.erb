@@ -3,7 +3,7 @@
   scale = ("A".."H").to_a
 %>
 <div class="board" data-current-turn="<%= @game.current_turn_color %>">
-  <div class="clearfix" style="margin-left: 20px;">
+  <div class="clearfix" style="margin-left: 22px;">
     <% 8.times do |cell_num| %>
       <div class="grid-label-x"><%= ("A".."H").to_a[cell_num] %></div>
     <% end %>
@@ -53,6 +53,7 @@
     float: left;
     width: 64px;
     height: 64px;
+    border: 1px solid #777;
   }
   .board-cell.wc {
     background: white;
@@ -60,7 +61,14 @@
   .board-cell.bc {
     background: #a0a0a0;
   }
+  .board-cell.is-movable {
+    background: yellow;
+  }
+  .board-cell.is-attackable {
+    background: red;
+  }
   .grid-label-y, .grid-label-x {
+    border: 1px solid #777;
     text-align: center;
     float: left;
     background: gray;
