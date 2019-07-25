@@ -133,6 +133,11 @@ class Piece
     rows = @game.ROWS
     pos.replace(/[A-H]/, ((v) -> rows[(rows.indexOf(v)) + num] ))
 
+  changeAngle: (pos, v, h) ->
+    pos = @changeRow(pos, v)
+    pos = @changeColumn(pos, h)
+    pos
+
   pawnMoves: ->
     pos = @getPosition(@piece)
     available = []
@@ -142,6 +147,12 @@ class Piece
 
     for move in verticalMoves
       available.push(move) unless @game.getPiece(move)
+
+    attackMoves = [@changeAngle(pos, 1, if @color == "white" then 1 else -1),
+                   @changeAngle(pos, -1, if @color == "white" then 1 else -1)]
+
+    for move in attackMoves
+      available.push(move) if @game.getPiece(move)
 
     available
 
