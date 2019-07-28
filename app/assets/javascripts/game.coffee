@@ -122,7 +122,7 @@ class Piece
   availableMoves: ->
     switch @type
       when "king" then "im a king"
-      when "queen" then "im a queen"
+      when "queen" then @queenMoves()
       when "bishop" then @bishopMoves()
       when "knight" then @knightMoves()
       when "rook" then @rookMoves()
@@ -144,6 +144,9 @@ class Piece
     pos = @changeColumn(pos, h, false)
     pos = undefined unless @game.validPosition(pos)
     pos
+
+  queenMoves: ->
+    @bishopMoves().concat @rookMoves()
 
   bishopMoves: ->
     pos = @getPosition(@piece)
