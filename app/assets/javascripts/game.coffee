@@ -125,7 +125,7 @@ class Piece
       when "queen" then "im a queen"
       when "bishop" then @bishopMoves()
       when "knight" then @knightMoves()
-      when "rook" then "im a rook"
+      when "rook" then @rookMoves()
       when "pawn" then @pawnMoves()
 
   changeColumn: (pos, num, validate = true) ->
@@ -188,6 +188,34 @@ class Piece
         available.push move2 if move2 != undefined
 
     available.filter (move) => @getFriendly(move) == undefined
+
+  rookMoves: ->
+    pos = @getPosition(@piece)
+    available = []
+
+    for type in ["row", "column"]
+      for dir in [1, -1]
+        start = 1
+        cond = true
+
+        while cond
+          move = if type == "row" then @changeRow(pos, dir * start) else @changeColumn(pos, dir * start)
+
+          if move != undefined
+            piece = @getPiece(move)
+
+            if piece == undefined
+              available.push move
+              start++
+            else if piece.isEnemy(@color)
+              available.push move
+              cond = false
+            else
+              cond = false
+          else
+            cond = false
+
+    available
 
   pawnMoves: ->
     pos = @getPosition(@piece)
