@@ -1,6 +1,6 @@
 class Game
-  ROWS: ["A", "B", "C", "D", "E", "F", "G", "H"]
-  COLS: [1, 2, 3, 4, 5, 6, 7, 8]
+  COLS: ["A", "B", "C", "D", "E", "F", "G", "H"]
+  ROWS: [1, 2, 3, 4, 5, 6, 7, 8]
 
   constructor: ->
     @board = $(".board")
@@ -17,7 +17,12 @@ class Game
     @cells.filter((idx, c) -> c.position == position )[0]
 
   getPiece: (position) ->
-    @pieces.filter((idx, p) -> p.position == position )[0]
+    @pieces.filter((idx, p) -> !p.destroyed && p.position == position )[0]
+
+  validPosition: (position) ->
+    position.length == 2 &&
+    @ROWS.indexOf(parseInt(position.match(/\d+/)[0])) >= 0 &&
+    @COLS.indexOf(position.match(/[A-H]/)[0]) >= 0
 
   toggleTurn: ->
     color = if @getTurn() == "white" then "black" else "white"
@@ -58,7 +63,6 @@ class Cell
 
   highlight: ->
     if @hasPiece()
-      console.log(@getPiece())
       @cell.addClass(@ATTACKABLE_STATUS)
     else
       @cell.addClass(@MOVABLE_CLASS)
@@ -79,16 +83,14 @@ class Piece
 
   setEvents: ->
     @piece.on "click", =>
-      @activate() if @canMove()
-
-  canMove: ->
-    @game.getTurn() == @color
+      @activate() if @isMovable()
 
   deactivate: ->
     @unhighlightMoves()
     @active = false
 
   activate: ->
+    console.log("activated: #{@color} #{@type}")
     @game.deactivateActivePiece()
     @active = true
     @highlightAvailableMoves()
@@ -121,40 +123,89 @@ class Piece
     switch @type
       when "king" then "im a king"
       when "queen" then "im a queen"
-      when "bishop" then "im a bishop"
+      when "bishop" then @bishopMoves()
       when "knight" then "im a knight"
       when "rook" then "im a rook"
       when "pawn" then @pawnMoves()
 
-  changeColumn: (pos, num) ->
-    pos.replace(/\d/, ((v) -> parseInt(v) + num ))
+  changeColumn: (pos, num, validate = true) ->
+    rows = @game.COLS
+    pos = pos.replace(/[A-H]/, ((v) -> rows[(rows.indexOf(v)) + num] ))
+    pos = undefined if validate && !@game.validPosition(pos)
+    pos
 
-  changeRow: (pos, num) ->
-    rows = @game.ROWS
-    pos.replace(/[A-H]/, ((v) -> rows[(rows.indexOf(v)) + num] ))
+  changeRow: (pos, num, validate = true) ->
+    pos = pos.replace(/\d/, ((v) -> parseInt(v) + num ))
+    pos = undefined if validate && !@game.validPosition(pos)
+    pos
 
   changeAngle: (pos, v, h) ->
-    pos = @changeRow(pos, v)
-    pos = @changeColumn(pos, h)
+    pos = @changeRow(pos, v, false)
+    pos = @changeColumn(pos, h, false)
+    pos = undefined unless @game.validPosition(pos)
     pos
+
+  bishopMoves: ->
+    pos = @getPosition(@piece)
+    available = []
+
+    for vDir in [1, -1]
+      for hDir in [1, -1]
+        start = 1
+        cond = true
+
+        while cond
+          move = @changeAngle(pos, vDir * start, hDir * start)
+
+          if move != undefined
+            piece = @getPiece(move)
+
+            if piece == undefined
+              available.push move
+              start++
+            else if piece.isEnemy(@color)
+              available.push move
+              cond = false
+            else
+              cond = false
+          else
+            cond = false
+
+    available
 
   pawnMoves: ->
     pos = @getPosition(@piece)
     available = []
 
-    verticalMoves = [@changeColumn(pos, if @color == "white" then 1 else -1)]
-    verticalMoves.push @changeColumn(pos, if @color == "white" then 2 else -2) if @moves.length == 0
+    verticalMoves = [@changeRow(pos, @setDir(1))]
+    verticalMoves.push @changeRow(pos, @setDir(2)) if @moves.length == 0
 
     for move in verticalMoves
-      available.push(move) unless @game.getPiece(move)
+      available.push(move) if move != undefined && @getPiece(move) == undefined
 
-    attackMoves = [@changeAngle(pos, 1, if @color == "white" then 1 else -1),
-                   @changeAngle(pos, -1, if @color == "white" then 1 else -1)]
+    attackMoves = [@changeAngle(pos, @setDir(1), 1),
+                   @changeAngle(pos, @setDir(1), -1)]
 
     for move in attackMoves
-      available.push(move) if @game.getPiece(move)
+      available.push(move) if move != undefined && @getEnemy(move) != undefined
 
     available
+
+  setDir: (v) ->
+    dir = if @color == "white" then 1 else -1
+    dir * v
+
+  isMovable: -> @game.getTurn() == @color
+
+  isEnemy: (color) -> @color != color
+
+  getPiece: (position) ->
+    @game.getPiece(position)
+
+  getEnemy: (position) ->
+    piece = @game.getPiece(position)
+    piece = undefined if piece == undefined || !piece.isEnemy(@color)
+    piece
 
   getPosition: (piece) ->
     cell = piece.parent(".board-cell")
