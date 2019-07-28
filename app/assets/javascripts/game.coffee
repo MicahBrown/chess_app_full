@@ -121,7 +121,7 @@ class Piece
 
   availableMoves: ->
     switch @type
-      when "king" then "im a king"
+      when "king" then @kingMoves()
       when "queen" then @queenMoves()
       when "bishop" then @bishopMoves()
       when "knight" then @knightMoves()
@@ -144,6 +144,46 @@ class Piece
     pos = @changeColumn(pos, h, false)
     pos = undefined unless @game.validPosition(pos)
     pos
+
+  kingMoves: ->
+    pos = @getPosition(@piece)
+    available = []
+
+    # diagonal moves
+    for vDir in [1, -1]
+      for hDir in [1, -1]
+        move = @changeAngle(pos, vDir, hDir)
+        available.push move if move != undefined && @getFriendly(move) == undefined
+
+    # vertical/horizontal moves
+    for type in ["row", "column"]
+      for dir in [1, -1]
+        move = if type == "row" then @changeRow(pos, dir) else @changeColumn(pos, dir)
+        available.push move if move != undefined && @getFriendly(move) == undefined
+
+    # castle moves
+    if @moves.length < 1
+      for dir in [1, -1]
+        start = 1
+        cond = true
+
+        while cond
+          cellPos = @changeColumn(pos, start * dir)
+
+          if cellPos != undefined
+            piece = @getPiece(cellPos)
+
+            if piece == undefined
+              start++
+            else if piece.type == "rook" && piece.moves.length < 1
+              available.push @changeColumn(pos, 2 * dir)
+              cond = false
+            else
+              cond = false
+          else
+            cond = false
+
+    available
 
   queenMoves: ->
     @bishopMoves().concat @rookMoves()
@@ -252,7 +292,6 @@ class Piece
   getFriendly: (position) ->
     piece = @game.getPiece(position)
     piece = undefined if piece == undefined || piece.isEnemy(@color)
-    console.log(piece)
     piece
 
   getEnemy: (position) ->
