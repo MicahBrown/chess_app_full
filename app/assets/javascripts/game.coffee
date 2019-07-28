@@ -124,7 +124,7 @@ class Piece
       when "king" then "im a king"
       when "queen" then "im a queen"
       when "bishop" then @bishopMoves()
-      when "knight" then "im a knight"
+      when "knight" then @knightMoves()
       when "rook" then "im a rook"
       when "pawn" then @pawnMoves()
 
@@ -173,6 +173,22 @@ class Piece
 
     available
 
+  knightMoves: ->
+    pos = @getPosition(@piece)
+    available = []
+
+    for hDir in [1, -1]
+      for vDir in [1, -1]
+        move1 = @changeRow(pos, hDir * 2)
+        move1 = @changeColumn(move1, vDir) if move1 != undefined
+        available.push move1 if move1 != undefined
+
+        move2 = @changeColumn(pos, hDir * 2)
+        move2 = @changeRow(move2, vDir) if move2 != undefined
+        available.push move2 if move2 != undefined
+
+    available.filter (move) => @getFriendly(move) == undefined
+
   pawnMoves: ->
     pos = @getPosition(@piece)
     available = []
@@ -201,6 +217,12 @@ class Piece
 
   getPiece: (position) ->
     @game.getPiece(position)
+
+  getFriendly: (position) ->
+    piece = @game.getPiece(position)
+    piece = undefined if piece == undefined || piece.isEnemy(@color)
+    console.log(piece)
+    piece
 
   getEnemy: (position) ->
     piece = @game.getPiece(position)
