@@ -16,8 +16,8 @@ class Game
   getCell: (position) ->
     @cells.filter((idx, c) -> c.position == position )[0]
 
-  getPiece: (position) ->
-    @pieces.filter((idx, p) -> !p.destroyed && p.position == position )[0]
+  getPiece: (position, type=null) ->
+    @pieces.filter((idx, p) -> !p.destroyed && p.position == position && (type == null || p.type == type))[0]
 
   validPosition: (position) ->
     position.length == 2 &&
@@ -37,7 +37,8 @@ class Game
 
 class Cell
   ATTACKABLE_STATUS: "is-attackable"
-  MOVABLE_CLASS: "is-movable"
+  CASTLE_STATUS: "is-castleable"
+  MOVABLE_STATUS: "is-movable"
 
   constructor: (cell, game) ->
     @cell = $(cell)
@@ -48,9 +49,13 @@ class Cell
 
   setEvents: ->
     @cell.on "click", =>
-      if @cell.hasClass(@ATTACKABLE_STATUS) || @cell.hasClass(@MOVABLE_CLASS)
-        piece = @game.getActivePiece()
-        piece.moveTo(this) if piece != undefined
+      piece = @game.getActivePiece()
+
+      if piece != undefined
+        if @cell.hasClass(@CASTLE_STATUS)
+          piece.castle(this)
+        else if @cell.hasClass(@ATTACKABLE_STATUS) || @cell.hasClass(@MOVABLE_STATUS)
+          piece.moveTo(this)
 
   hasPiece: ->
     @getPiece() != undefined
@@ -58,14 +63,20 @@ class Cell
   getPiece: ->
     @game.getPiece(@position)
 
+  isCastleMove: ->
+    piece = @game.getActivePiece()
+    piece == undefined || piece.castleMoves().indexOf(@position) >= 0
+
   unhighlight: ->
-    @cell.removeClass("#{@ATTACKABLE_STATUS} #{@MOVABLE_CLASS}")
+    @cell.removeClass("#{@ATTACKABLE_STATUS} #{@CASTLE_STATUS} #{@MOVABLE_STATUS}")
 
   highlight: ->
     if @hasPiece()
       @cell.addClass(@ATTACKABLE_STATUS)
+    else if @isCastleMove()
+      @cell.addClass(@CASTLE_STATUS)
     else
-      @cell.addClass(@MOVABLE_CLASS)
+      @cell.addClass(@MOVABLE_STATUS)
 
 class Piece
   constructor: (piece, game) ->
@@ -106,6 +117,18 @@ class Piece
     @unhighlightMoves()
     @game.toggleTurn()
 
+  castle: (cell) ->
+    rookPos = @changeColumn(cell.position, if cell.position[0] == "G" then 1 else -2)
+    rook = @getPiece(rookPos, "rook")
+
+    if rook == undefined
+      $.error("no rook found")
+
+    rookNewPos = @changeColumn(cell.position, if cell.position[0] == "G" then -1 else 1)
+    rookNewCell = @getCell(rookNewPos)
+    rook.moveTo(rookNewCell)
+    @moveTo(cell)
+
   destroy: ->
     @destroyed = true
     @piece.detach()
@@ -145,6 +168,34 @@ class Piece
     pos = undefined unless @game.validPosition(pos)
     pos
 
+  castleMoves: ->
+    castleMoves = []
+
+    if @type == "king" && @moves.length < 1
+      pos = @getPosition(@piece)
+
+      for dir in [1, -1]
+        start = 1
+        cond = true
+
+        while cond
+          cellPos = @changeColumn(pos, start * dir)
+
+          if cellPos != undefined
+            piece = @getPiece(cellPos)
+
+            if piece == undefined
+              start++
+            else if piece.type == "rook" && piece.moves.length < 1
+              castleMoves.push @changeColumn(pos, 2 * dir)
+              cond = false
+            else
+              cond = false
+          else
+            cond = false
+
+    castleMoves
+
   kingMoves: ->
     pos = @getPosition(@piece)
     available = []
@@ -162,26 +213,8 @@ class Piece
         available.push move if move != undefined && @getFriendly(move) == undefined
 
     # castle moves
-    if @moves.length < 1
-      for dir in [1, -1]
-        start = 1
-        cond = true
-
-        while cond
-          cellPos = @changeColumn(pos, start * dir)
-
-          if cellPos != undefined
-            piece = @getPiece(cellPos)
-
-            if piece == undefined
-              start++
-            else if piece.type == "rook" && piece.moves.length < 1
-              available.push @changeColumn(pos, 2 * dir)
-              cond = false
-            else
-              cond = false
-          else
-            cond = false
+    for move in @castleMoves()
+      available.push move
 
     available
 
@@ -286,8 +319,9 @@ class Piece
 
   isEnemy: (color) -> @color != color
 
-  getPiece: (position) ->
-    @game.getPiece(position)
+  getCell: (position) -> @game.getCell(position)
+
+  getPiece: (position, type=null) -> @game.getPiece(position, type)
 
   getFriendly: (position) ->
     piece = @game.getPiece(position)
