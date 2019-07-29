@@ -40,6 +40,7 @@ ActiveRecord::Schema.define(version: 2019_07_02_043048) do
     t.bigint "game_id", null: false
     t.bigint "piece_id", null: false
     t.integer "team", null: false
+    t.string "move"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["game_id"], name: "index_game_moves_on_game_id"
@@ -49,7 +50,6 @@ ActiveRecord::Schema.define(version: 2019_07_02_043048) do
   create_table "games", force: :cascade do |t|
     t.bigint "black_opponent_id"
     t.bigint "white_opponent_id"
-    t.text "moves"
     t.integer "turn", default: 0, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -62,7 +62,6 @@ ActiveRecord::Schema.define(version: 2019_07_02_043048) do
     t.string "type", null: false
     t.integer "team", null: false
     t.string "position", null: false
-    t.text "moves"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["game_id"], name: "index_pieces_on_game_id"

@@ -4,6 +4,7 @@ class CreateGameMoves < ActiveRecord::Migration[5.2]
       t.belongs_to :game, null: false, foreign_key: true
       t.belongs_to :piece, null: false, foreign_key: true
       t.integer :team, null: false
+      t.string :move
       t.timestamps null: false
     end
   end

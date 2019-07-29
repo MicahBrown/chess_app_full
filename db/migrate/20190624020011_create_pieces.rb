@@ -5,7 +5,6 @@ class CreatePieces < ActiveRecord::Migration[5.2]
       t.string :type, null: false
       t.integer :team, null: false
       t.string :position, null: false
-      t.text :moves
       t.timestamps null: false
     end
   end
