@@ -6,6 +6,7 @@ class Game
     @board = $(".board")
     @cells = @board.find(".board-cell").map (idx, c) => new Cell(c, this)
     @pieces = @board.find(".piece").map (idx, p) => new Piece(p, this)
+    @moves = []
 
   getTurn: ->
     @board.data("current-turn")
@@ -111,9 +112,8 @@ class Piece
       cell.getPiece().destroy()
 
     @piece.appendTo cell.cell
-
-    @position = @getPosition(@piece)
-    @moves.push cell.position
+    @position = cell.position
+    @postMove(@position)
     @unhighlightMoves()
     @game.toggleTurn()
 
@@ -132,6 +132,17 @@ class Piece
   destroy: ->
     @destroyed = true
     @piece.detach()
+
+  postMove: (move) ->
+    $.ajax
+      url: @piece.data("update-path")
+      data: {move: move}
+      type: "POST"
+      dataType: "json"
+      headers:
+        "X-CSRF-Token" : $("meta[name='csrf-token']").attr("content")
+
+    @moves.push move
 
   unhighlightMoves: ->
     for cell in @game.cells

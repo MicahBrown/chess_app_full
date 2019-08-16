@@ -2,10 +2,6 @@ class Game < ApplicationRecord
   enum turn: [:white_turn, :black_turn]
   has_many :pieces
 
-  def move(position)
-    raise position.inspect
-  end
-
   def current_turn_color
     white_turn? ? :white : :black
   end
@@ -13,6 +9,11 @@ class Game < ApplicationRecord
   def create_with_pieces!
     build_all_pieces
     save!
+  end
+
+  def flip_turn!
+    self.turn = white_turn? ? :black_turn : :white_turn
+    self.save!
   end
 
   def build_all_pieces
