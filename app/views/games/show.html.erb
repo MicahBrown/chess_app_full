@@ -1,5 +1,5 @@
 <%
-  pieces = @game.pieces
+  pieces = @game.pieces.uncaptured
   scale = ("A".."H").to_a
 %>
 <div class="board" data-current-turn="<%= @game.current_turn_color %>">

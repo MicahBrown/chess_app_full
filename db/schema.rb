@@ -62,6 +62,7 @@ ActiveRecord::Schema.define(version: 2019_07_02_043048) do
     t.string "type", null: false
     t.integer "team", null: false
     t.string "position", null: false
+    t.boolean "captured", default: false, null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["game_id"], name: "index_pieces_on_game_id"

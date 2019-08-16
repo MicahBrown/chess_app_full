@@ -3,6 +3,8 @@ class Piece < ApplicationRecord
 
   serialize :moves, Array
 
+  scope :uncaptured, -> { where(captured: false) }
+
   TYPES = %w[King Queen Bishop Knight Rook Pawn].freeze
 
   belongs_to :game, autosave: true
@@ -14,9 +16,17 @@ class Piece < ApplicationRecord
     self.type.split("::").last.downcase
   end
 
-  def move!(position)
-    self.game_moves.build(game: game, team: team, move: position)
-    self.position = position
+  def capture!
+    self.captured = true
     self.save!
+  end
+
+  def move!(position)
+    self.class.transaction do
+      self.game_moves.build(game: game, team: team, move: position)
+      self.position = position
+      self.game.pieces.where(position: position).where.not(id: self.id).uncaptured.first&.capture!
+      self.save!
+    end
   end
 end
