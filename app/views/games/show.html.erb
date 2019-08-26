@@ -20,19 +20,6 @@
           cell_piece = pieces.detect { |p| p.position == cell_pos }
         %>
         <div class="board-cell <%= (row_num.even? ? cell_num.even? : cell_num.odd?) ? "wc" : "bc" %>" data-position="<%= cell_pos %>">
-          <%#=
-            if row_num == 0 || row_num == 7
-              case cell_num
-              when 0, 7 then piece("rook", row_num > 2)
-              when 1, 6 then piece("knight", row_num > 2)
-              when 2, 5 then piece("bishop", row_num > 2)
-              when 3 then piece("queen", row_num > 2)
-              when 4 then piece("king", row_num > 2)
-              end
-            elsif row_num == 1 || row_num == 6
-              piece("pawn", row_num > 2)
-            end
-          %>
           <% if cell_piece.present? %>
             <%= piece(cell_piece) %>
           <% end %>
@@ -41,62 +28,3 @@
     </div>
   <% end %>
 </div>
-
-<style type="text/css">
-  .board {
-    background: #eee;
-  }
-  .board-row {
-
-  }
-  .board-cell {
-    float: left;
-    width: 64px;
-    height: 64px;
-    border: 1px solid #777;
-  }
-  .board-cell.wc {
-    background: white;
-  }
-  .board-cell.bc {
-    background: #a0a0a0;
-  }
-  .board-cell.is-movable {
-    background: yellow;
-  }
-  .board-cell.is-attackable {
-    background: red;
-  }
-  .board-cell.is-castleable {
-    background: orange;
-  }
-  .grid-label-y, .grid-label-x {
-    border: 1px solid #777;
-    text-align: center;
-    float: left;
-    background: gray;
-    color: #fff;
-  }
-  .grid-label-x {
-    height: 20px;
-    width: 64px;
-    line-height: 20px;
-  }
-  .grid-label-y {
-    height: 64px;
-    width: 20px;
-    line-height: 64px;
-  }
-  .piece {
-    display: block;
-    width: 64px;
-    height: 64px;
-  }
-  .piece img {
-    width: 100%;
-    height: 100%;
-  }
-  .piece img:hover {
-    opacity: 0.8;
-  }
-</style>

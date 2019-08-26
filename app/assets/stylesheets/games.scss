@@ -1,0 +1,62 @@
+.board {
+  background: #eee;
+}
+
+.board-row {
+
+}
+
+.board-cell {
+  float: left;
+  width: 64px;
+  height: 64px;
+  border: 1px solid #777;
+  &.wc {
+    background: white;
+  }
+  &.bc {
+    background: #a0a0a0;
+  }
+
+  &.is-movable {
+    background: yellow;
+  }
+  &.is-attackable {
+    background: red;
+  }
+  &.is-castleable {
+    background: orange;
+  }
+}
+
+.grid-label-y, .grid-label-x {
+  border: 1px solid #777;
+  text-align: center;
+  float: left;
+  background: gray;
+  color: #fff;
+}
+.grid-label-x {
+  height: 20px;
+  width: 64px;
+  line-height: 20px;
+}
+.grid-label-y {
+  height: 64px;
+  width: 20px;
+  line-height: 64px;
+}
+
+
+.piece {
+  display: block;
+  width: 64px;
+  height: 64px;
+  img {
+    width: 100%;
+    height: 100%;
+    &:hover {
+      opacity: 0.8;
+    }
+  }
+}
