@@ -20,6 +20,9 @@ class Game
   getPiece: (position, type=null) ->
     @pieces.filter((idx, p) -> !p.destroyed && p.position == position && (type == null || p.type == type))[0]
 
+  lastMove: ->
+    @moves.slice(-1)[0]
+
   validPosition: (position) ->
     position.length == 2 &&
     @ROWS.indexOf(parseInt(position.match(/\d+/)[0])) >= 0 &&
@@ -36,10 +39,15 @@ class Game
     piece = @getActivePiece()
     piece.deactivate() if piece != undefined
 
+  isPawnDoubleMove: (move) ->
+    # console.log(move)
+    true
+
 class Cell
   ATTACKABLE_STATUS: "is-attackable"
   CASTLE_STATUS: "is-castleable"
   MOVABLE_STATUS: "is-movable"
+  EN_PASSANT_STATUS: "is-enpassant"
 
   constructor: (cell, game) ->
     @cell = $(cell)
@@ -55,6 +63,8 @@ class Cell
       if piece != undefined
         if @cell.hasClass(@CASTLE_STATUS)
           piece.castle(this)
+        else if @cell.hasClass(@EN_PASSANT_STATUS)
+          piece.enPassant(this)
         else if @cell.hasClass(@ATTACKABLE_STATUS) || @cell.hasClass(@MOVABLE_STATUS)
           piece.moveTo(this)
 
@@ -64,20 +74,27 @@ class Cell
   getPiece: ->
     @game.getPiece(@position)
 
+  destroyPiece: -> @getPiece().destroy() if @hasPiece()
+
   isCastleMove: ->
     piece = @game.getActivePiece()
     piece == undefined || piece.castleMoves().indexOf(@position) >= 0
 
   unhighlight: ->
-    @cell.removeClass("#{@ATTACKABLE_STATUS} #{@CASTLE_STATUS} #{@MOVABLE_STATUS}")
+    @cell.removeClass("#{@ATTACKABLE_STATUS} #{@CASTLE_STATUS} #{@MOVABLE_STATUS} #{@EN_PASSANT_STATUS}")
 
   highlight: ->
     if @hasPiece()
       @cell.addClass(@ATTACKABLE_STATUS)
     else if @isCastleMove()
       @cell.addClass(@CASTLE_STATUS)
+    else if @isEnPassantMove()
+      @cell.addClass(@EN_PASSANT_STATUS)
     else
       @cell.addClass(@MOVABLE_STATUS)
+
+  isEnPassantMove: ->
+    @game.getActivePiece().enPassantMoves().indexOf(@position) >= 0
 
 class Piece
   constructor: (piece, game) ->
@@ -108,8 +125,7 @@ class Piece
     @highlightAvailableMoves()
 
   moveTo: (cell) ->
-    if cell.hasPiece()
-      cell.getPiece().destroy()
+    cell.destroyPiece()
 
     @piece.appendTo cell.cell
     @position = cell.position
@@ -129,6 +145,12 @@ class Piece
     rook.moveTo(rookNewCell)
     @moveTo(cell)
 
+  enPassant: (cell) ->
+    lastMove = @game.lastMove()
+    lastMove.piece.destroy()
+
+    @moveTo(cell)
+
   destroy: ->
     @destroyed = true
     @piece.detach()
@@ -143,6 +165,7 @@ class Piece
         "X-CSRF-Token" : $("meta[name='csrf-token']").attr("content")
 
     @moves.push move
+    @game.moves.push {piece: this, move: move}
 
   unhighlightMoves: ->
     for cell in @game.cells
@@ -182,7 +205,7 @@ class Piece
   castleMoves: ->
     castleMoves = []
 
-    if @type == "king" && @moves.length < 1
+    if @type == "king" && !@hasMoved()
       pos = @getPosition(@piece)
 
       for dir in [1, -1]
@@ -197,7 +220,7 @@ class Piece
 
             if piece == undefined
               start++
-            else if piece.type == "rook" && piece.moves.length < 1
+            else if piece.type == "rook" && !piece.hasMoved()
               castleMoves.push @changeColumn(pos, 2 * dir)
               cond = false
             else
@@ -206,6 +229,21 @@ class Piece
             cond = false
 
     castleMoves
+
+  enPassantMoves: ->
+    enPassantMoves = []
+
+    if @type == "pawn"
+      lastMove = @game.lastMove()
+
+      if lastMove != undefined && @game.isPawnDoubleMove(lastMove)
+        move = [@changeColumn(@position, 1), @changeColumn(@position, -1)].find (m) -> m == undefined || lastMove.move == m
+
+        if move != undefined
+          enPassantMoves.push @changeRow(move, if @color == "white" then 1 else -1)
+
+    enPassantMoves
+
 
   kingMoves: ->
     pos = @getPosition(@piece)
@@ -309,7 +347,7 @@ class Piece
     available = []
 
     verticalMoves = [@changeRow(pos, @setDir(1))]
-    verticalMoves.push @changeRow(pos, @setDir(2)) if @moves.length == 0
+    verticalMoves.push @changeRow(pos, @setDir(2)) unless @hasMoved()
 
     for move in verticalMoves
       available.push(move) if move != undefined && @getPiece(move) == undefined
@@ -320,6 +358,9 @@ class Piece
     for move in attackMoves
       available.push(move) if move != undefined && @getEnemy(move) != undefined
 
+    for move in @enPassantMoves()
+      available.push move
+
     available
 
   setDir: (v) ->
@@ -329,6 +370,8 @@ class Piece
   isMovable: -> @game.getTurn() == @color
 
   isEnemy: (color) -> @color != color
+
+  hasMoved: -> @moves.length > 0
 
   getCell: (position) -> @game.getCell(position)
 

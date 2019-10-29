@@ -21,7 +21,7 @@
   &.is-movable {
     background: yellow;
   }
-  &.is-attackable {
+  &.is-attackable, &.is-enpassant {
     background: red;
   }
   &.is-castleable {
